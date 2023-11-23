@@ -1,48 +1,49 @@
 import numpy as np
 import scipy.io
-from scipy.optimize import minimize
+from scipy.linalg import lstsq
+
+def objective(theta, x, y):
+    beta = theta[:-1]
+    bias = theta[-1]
+    return np.sum((x.dot(beta) + bias - y) ** 2)
 
 print("Starting...")
-
 # Load the dataset (assuming mnist.mat is available)
 mnist = scipy.io.loadmat('mnist.mat')
 trainX = mnist['trainX']
 trainY = mnist['trainY']
 
-# Convert uint8 to float and normalize to [0, 1]
+trainY = (trainY == 0).astype(float).T
 trainX = trainX.astype(float) / 255.0
+X_with_bias = np.hstack((trainX, np.ones((trainX.shape[0], 1))))
 
-# Define the function to convert labels to binary (0 or 1)
-def is_zero(y):
-    return (y == 0).astype(float)
+# print(X_with_bias.shape)
 
-# Convert labels to binary
-y_binary = is_zero(trainY)
+result = lstsq(trainX, trainY)
+result_with_bias = lstsq(X_with_bias, trainY)
 
-# Define the objective function
-def objective(theta, X, y):
-    beta = theta[:-1]
-    bias = theta[-1]
-    return np.sum((X.dot(beta) + bias - y) ** 2)
+optimal_theta = result[0]
+optimal_theta_with_bias = result_with_bias[0]
 
-# Initial guess for parameters
-initial_guess = np.random.randn(trainX.shape[1] + 1)
+print(optimal_theta_with_bias.shape)
 
-# Minimize the objective function
-result = minimize(objective, initial_guess, args=(trainX, y_binary), method='BFGS')
+# predictions = np.sign(trainX.dot(optimal_theta))
+# print(X_with_bias.shape)
 
-# Extract the optimal parameters
-optimal_theta = result.x[:-1]
-optimal_bias = result.x[-1]
 
-# Make predictions on the training data
-predictions_train = np.sign(trainX.dot(optimal_theta) + optimal_bias)
+predictions = np.sign(X_with_bias.dot(optimal_theta_with_bias))
+# all -1 and 1, change to 1 and 0
+predictions +=1
+predictions = np.sign(predictions)
+print(predictions)
 
-# Evaluate the accuracy on the training data
-accuracy_train = np.sum(predictions_train == y_binary) / len(y_binary)
+# Evaluate the accuracy
+accuracy = np.sum(predictions == trainY) / len(trainY)
+print(accuracy)
 
-print(f'Optimal Theta: {optimal_theta}')
-print(f'Optimal Bias: {optimal_bias}')
-print(f'Training Accuracy: {accuracy_train * 100}%')
+# print(trainX[4])
+# print(trainY[0])
 
-print("Complete")
+
+
+
