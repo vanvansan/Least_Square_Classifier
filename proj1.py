@@ -48,7 +48,7 @@ def evaluate1v1(m ,tx_1, ty_1, target_num):
     return sum(predictions == ty_1) / len(ty_1)
 
 # the high level function for classifier
-def multiclassifier(model_list, x):
+def multiclassifier_1vN(model_list, x):
     most_prob = -1
     most_likely_num = -1
     for i in range(10):
@@ -71,7 +71,7 @@ def part1(inputfile = 'mnist.mat',savefile = "1v1Matrix.mat"):
     result = np.ones([10000,1])
     tx_1, dummy = formatting(testX, dummyY)
     confusion_m = np.zeros([10,10], dtype=int)
-    
+    count_error = 0
     print(confusion_m[8][8])
     
     f_n = []
@@ -83,13 +83,13 @@ def part1(inputfile = 'mnist.mat',savefile = "1v1Matrix.mat"):
 
     # test the result
     for i in range(10000):
-        prediction = multiclassifier(f_n, tx_1[i])
+        prediction = multiclassifier_1vN(f_n, tx_1[i])
         result[i] = int(prediction)
-
-        # pdb.set_trace()
+        if testY[i][0] != prediction:
+            count_error += 1
         confusion_m[testY[i][0]][int(prediction)] += 1
 
-        
+    
     print(sum(result == testY) / len(testY))
     
     
