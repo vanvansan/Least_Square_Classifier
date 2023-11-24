@@ -72,7 +72,6 @@ def part1(inputfile = 'mnist.mat',savefile = "1v1Matrix.mat"):
     tx_1, dummy = formatting(testX, dummyY)
     confusion_m = np.zeros([10,10], dtype=int)
     count_error = 0
-    print(confusion_m[8][8])
     
     f_n = []
     # training data
