@@ -1,0 +1,28 @@
+Project Report: 
+
+
+Part 1: Implementation and Evaluation of Multi-Class Classifiers
+
+The error rate for both classifiers are 0.1397. Interestingly by looking at the confusion matrix their final decisions of each number are the same. 
+
+-----------------cmd output------------------------------------
+
+[0.1397]
+Confusion Matrix:
+[[ 944    0    1    2    2    7   14    2    7    1]
+ [   0 1107    2    2    3    1    5    1   14    0]
+ [  18   54  813   26   15    0   42   22   37    5]
+ [   4   17   23  880    5   17    9   21   22   12]
+ [   0   22    6    1  881    5   10    2   11   44]
+ [  23   18    3   72   24  659   23   14   39   17]
+ [  18   10    9    0   22   17  875    0    7    0]
+ [   5   40   16    6   26    0    1  884    0   50]
+ [  14   46   11   30   27   40   15   12  759   20]
+ [  15   11    2   17   80    1    1   77    4  801]]
+
+-----------------cmd output------------------------------------
+
+
+The performance of both algorithms are good, with a correct rate of over 85 percent. From the confusion map,
+the numbers 1 are most likely to be recognized and 7 is the least likely. But the 1v1 classifier needs a much longer
+runtime than the 1vN, so for this task 1vN is more efficient.  
