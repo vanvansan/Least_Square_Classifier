@@ -1,6 +1,7 @@
 import numpy as np
 import scipy.io
 from scipy.linalg import pinv
+import matplotlib.pyplot as plt
 import pdb
 
 def objective(theta, x, y):
@@ -155,25 +156,128 @@ def part1_1v1(trainX, trainY, testX, testY):
     print("Confusion Matrix:")
     print(confusion_m)
     
-def part1(inputfile = 'mnist.mat',savefile = "1v1Matrix.mat"):
-    print("Starting...")
+def part1(inputfile = 'mnist.mat'):
+    
 
     # Load the dataset (assuming mnist.mat is available)
     trainX, trainY, testX, testY = parse_data(inputfile)
     testY = testY.T
     
     part1_1vn(trainX, trainY, testX, testY)
+    
     part1_1v1(trainX, trainY, testX, testY)
+    
+#################################### PART2 ####################################################  
+    
+def generate_new_random_feature(L):
+    d = 784  
 
-    # # saving
-    # mdic ={"beta": model}
-    # scipy.io.savemat(savefile, mdic)
-    # print("The matrix has been saved to " + savefile + "using label 'beta'")
+    # Generate random matrix W and vector b
+    W = np.random.normal(0, 1, size=(L, d))
+    b = np.random.normal(0, 1, size=L)
+    return W, b
+
+def identity(x):
+    return x
+
+def sinusoidal(x):
+    return np.sin(x)
+
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+def ReLU(x):
+    return np.maximum(0, x)
+
+def h(x, W, b, g):
+    x = x.dot(W.T) + b
+    return g(x)
+
+def evaluate_h(trainX, trainY, testX, testY, W, b, g):
+    testX = testX.astype(float) / 255.0
+    result = np.ones([10000,1])
+    
+    confusion_m = np.zeros([10,10], dtype=int)
+    temp_trainX = h(trainX, W, b, g)
+    # training data
+    f_1vn = []
+    for i in range(10):
+        model = train1v1(temp_trainX, trainY, i)
+        f_1vn.append(model)
+
+    temp_testX = h(testX, W, b, g)
+    temp_testX = np.hstack((temp_testX, np.ones((temp_testX.shape[0], 1))))
+
+    # test the result
+    for i in range(10000):
+        prediction = multiclassifier_1vN(f_1vn, temp_testX[i])
+        result[i] = int(prediction)
+        confusion_m[testY[i][0]][int(prediction)] += 1
+
+    print("error rate of " + g.__name__ +" on testing data is ")
+    test_e = sum(result != testY) / len(testY)
+    print(test_e)
+    
+    temp_trainX = np.hstack((temp_trainX, np.ones((temp_trainX.shape[0], 1))))
+    
+    trainY = trainY.T
+    train_result = np.ones(trainY.shape)
+    for i in range(10000):
+        prediction = multiclassifier_1vN(f_1vn, temp_trainX[i])
+        train_result[i] = int(prediction)
+        confusion_m[testY[i][0]][int(prediction)] += 1
+
+    print("error rate of " + g.__name__ +" on training data is ")
+    train_e = sum(train_result != trainY) / len(trainY)
+    print(train_e)
+    return test_e, train_e
+    
+    # # Confusion matrix
+    # print("Confusion Matrix:")
+    # print(confusion_m)
+
+
+def part2(inputfile = 'mnist.mat'):
+    # Part2.1 
+    print("evaluating random features with 1vN classifier")
+    g_list = [identity, sinusoidal,sigmoid, ReLU]
+    trainX, trainY, testX, testY = parse_data(inputfile)
+    W, b = generate_new_random_feature(1000)
+    testY = testY.T
+    for g in g_list:
+        evaluate_h(trainX, trainY, testX, testY, W, b, g)
+        
+    
+    L_list = range(10, 2000, 100)
+    train_errors = []
+    test_errors = []
+    for L in L_list:
+        W, b = generate_new_random_feature(L)
+        print("evaluating g = {} with L = {}".format(g.__name__, L))
+        
+        test_e, train_e = evaluate_h(trainX, trainY, testX, testY, W, b, ReLU)
+        
+        test_errors.append(test_e)
+        train_errors.append(train_e)
+
+
+    # Plot the error rate as a function of L
+    plt.plot(L_list, train_errors, label='Training Error')
+    plt.plot(L_list, test_errors, label='Test Error')
+    plt.xlabel('Number of Features (L)')
+    plt.ylabel('Error Rate')
+    plt.title('Error Rate vs. Number of Features using ReLU')
+    plt.legend()
+    plt.show()
+    
+    
+
 
 if __name__ == "__main__":
-    for j in range(9, 10):
-        print("okkk")
-    part1('mnist.mat', "part1.mat")
+    print("Starting...")
+    
+    # part1('mnist.mat')
+    part2()
 
 
 

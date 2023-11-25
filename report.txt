@@ -26,3 +26,14 @@ Confusion Matrix:
 The performance of both algorithms are good, with a correct rate of over 85 percent. From the confusion map,
 the numbers 1 are most likely to be recognized and 7 is the least likely. But the 1v1 classifier needs a much longer
 runtime than the 1vN, so for this task 1vN is more efficient.  
+
+
+------------------------------------- PART 2 ---------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------
+
+Only the random feature of ReLU performs better than in the part 1. The sigmoid and ReLU continue to perform at
+a relatively stable scale( < 15%).
+
+As the L gets larger, the error rate will be smaller. However, as the error rate will be reduced 
+slower and slower as L continue to get larger. There might be an bug, because the training 
+error is always unreasonably high. (Figure shown in error VS L.png)
